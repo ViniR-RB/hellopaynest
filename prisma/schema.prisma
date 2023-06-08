@@ -10,4 +10,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  name        String
+  document    String   @db.VarChar(11)
+  phone       String   @db.VarChar(11)
+  addres      String
+  zipCode     String   @db.VarChar(10)
+  houseNumber Int
+  role        Role
+  state       State
+  createdAt   DateTime @default(now())
+  updateAt    DateTime
+}
 
+enum Role {
+  ADMIN
+  USER
+}
+
+enum State {
+  AC
+  AL
+  AM
+  AP
+  BA
+  CE
+  DF
+  ES
+  GO
+  MA
+  MG
+  MS
+  MT
+  PA
+  PB
+  PE
+  PI
+  PR
+  RJ
+  RN
+  RO
+  RR
+  RS
+  SC
+  SE
+  SP
+  TO
+}
