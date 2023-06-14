@@ -1,15 +1,20 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as brcypt from 'bcrypt';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserEntity } from './entities/user.entity';
 import { UserAlreadyExists, UserNotFound } from './erros/user.erros';
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const { email } = createUserDto;
-    const user = await this.prisma.user.findUnique({
+    const user = await this.userRepository.findOneOrFail({
       where: { email },
     });
 
@@ -21,11 +26,10 @@ export class UserService {
       ...createUserDto,
       password,
       secret: undefined,
-      updateAt: new Date(createUserDto.updateAt),
     };
-    const userCreated = await this.prisma.user.create({
-      data,
-    });
+    const userCreated = await this.userRepository.save(
+      this.userRepository.create(data),
+    );
 
     return {
       ...userCreated,
@@ -34,12 +38,14 @@ export class UserService {
   }
 
   async findOne(email: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
-    if (user === undefined) {
+    try {
+      const user = await this.userRepository.findOneByOrFail({
+        email,
+      });
+
+      return user;
+    } catch (error) {
       throw new UserNotFound('Usuário não encontrado', HttpStatus.NOT_FOUND);
     }
-    return user;
   }
 }

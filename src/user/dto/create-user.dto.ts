@@ -1,17 +1,15 @@
 import {
-  IsDate,
   IsEmail,
   IsEnum,
-  IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { User } from '../entities/user.entity';
-import { Role, State } from '@prisma/client';
+import { EstadoBrasil, Role } from 'src/core/utils/enums';
+import { UserEntity } from '../entities/user.entity';
 
-export class CreateUserDto extends User {
+export class CreateUserDto extends UserEntity {
   @IsEmail()
   email: string;
 
@@ -53,15 +51,9 @@ export class CreateUserDto extends User {
   })
   houseNumber: number;
 
-  @IsEnum(State)
-  state: State;
+  @IsEnum(EstadoBrasil)
+  state: EstadoBrasil;
 
   @IsEnum(Role)
   role: Role;
-
-  @IsOptional()
-  createdAt?: Date;
-
-  @IsDate()
-  updateAt: Date;
 }
